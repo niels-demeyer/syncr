@@ -1,9 +1,8 @@
-// src/sync.rs
-
 use std::fs;
 use std::path::Path;
-use std::time::SystemTime;
+// use std::time::SystemTime;
 use crate::metadata::FileMetadata;
+use std::io::{Error, ErrorKind};
 
 pub fn sync_directories(dir1: &Path, dir2: &Path) -> std::io::Result<()> {
     let metadata1 = collect_metadata(dir1)?;
@@ -14,7 +13,7 @@ pub fn sync_directories(dir1: &Path, dir2: &Path) -> std::io::Result<()> {
         let target_path = dir2.join(path);
         match metadata2.get(path) {
             Some(target_meta) => {
-                if meta.modified > target_meta.modified || meta.size != target_meta.size {
+                if meta.modified_time > target_meta.modified_time || meta.size != target_meta.size {
                     fs::copy(dir1.join(path), &target_path)?;
                 }
             }
@@ -29,7 +28,7 @@ pub fn sync_directories(dir1: &Path, dir2: &Path) -> std::io::Result<()> {
         let target_path = dir1.join(path);
         match metadata1.get(path) {
             Some(target_meta) => {
-                if meta.modified > target_meta.modified || meta.size != target_meta.size {
+                if meta.modified_time > target_meta.modified_time || meta.size != target_meta.size {
                     fs::copy(dir2.join(path), &target_path)?;
                 }
             }
@@ -50,9 +49,13 @@ fn collect_metadata(dir: &Path) -> std::io::Result<std::collections::HashMap<Str
         let path = entry.path();
         if path.is_file() {
             let metadata = fs::metadata(&path)?;
+            let relative_path = path.strip_prefix(dir)
+                .map_err(|e| Error::new(ErrorKind::InvalidInput, e))?
+                .to_string_lossy().to_string();
+                
             let file_meta = FileMetadata {
-                path: path.strip_prefix(dir)?.to_string_lossy().to_string(),
-                modified: metadata.modified()?,
+                path: relative_path,
+                modified_time: metadata.modified()?,
                 size: metadata.len(),
             };
             metadata_map.insert(file_meta.path.clone(), file_meta);

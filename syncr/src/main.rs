@@ -1,8 +1,9 @@
 // src/main.rs
 
 use std::env;
+use std::path::Path;
 use std::process;
-use directory_sync::sync::sync_directories;
+use syncr::sync::sync_directories;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -14,7 +15,7 @@ fn main() {
     let source = &args[1];
     let destination = &args[2];
 
-    if let Err(e) = sync_directories(source, destination) {
+    if let Err(e) = sync_directories(Path::new(source), Path::new(destination)) {
         eprintln!("Error syncing directories: {}", e);
         process::exit(1);
     }
