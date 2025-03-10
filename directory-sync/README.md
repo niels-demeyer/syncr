@@ -1,4 +1,4 @@
-# Directory Sync
+# Rsync
 
 This project provides a command-line tool to synchronize two directories efficiently by comparing their metadata. It checks for differences in file existence, modification times, and sizes to determine which files need to be copied or updated.
 
