@@ -59,7 +59,7 @@ fn collect_metadata(dir: &Path) -> std::io::Result<std::collections::HashMap<Str
     Ok(metadata_map)
 }
 
-fn collect_metadata_recursive(
+pub fn collect_metadata_recursive(
     base_dir: &Path, 
     current_dir: &Path, 
     metadata_map: &mut std::collections::HashMap<String, FileMetadata>
